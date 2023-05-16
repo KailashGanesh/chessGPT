@@ -1,0 +1,42 @@
+import { Chess } from "chess.js";
+
+// Initialize a new chess game
+const game = new Chess();
+
+// Add a listener for the DOMContentLoaded event so we can start manipulating the DOM
+document.addEventListener("DOMContentLoaded", () => {
+  const boardElement = document.getElementById("board") as HTMLElement;
+  const moveButton = document.getElementById("moveButton") as HTMLButtonElement;
+  const moveInput = document.getElementById("moveInput") as HTMLInputElement;
+
+  // Update the board display
+  const updateBoard = () => {
+    boardElement.textContent = game.ascii();
+  };
+
+  // Handle move button clicks
+  moveButton.addEventListener("click", () => {
+    console.log("Move button clicked"); // Add this line to check if the event listener is triggered
+
+    const move = moveInput.value;
+    const moveParts = move.split("-");
+
+    if (moveParts.length === 2) {
+      const from = moveParts[0];
+      const to = moveParts[1];
+      const result = game.move({ from, to });
+
+      if (result) {
+        updateBoard();
+        moveInput.value = "";
+      } else {
+        alert("Invalid move");
+      }
+    } else {
+      alert("Invalid move format");
+    }
+  });
+
+  updateBoard();
+});
+
