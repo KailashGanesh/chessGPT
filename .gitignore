@@ -1,0 +1,32 @@
+# Build files
+#-----------------------------------
+/dist
+
+# Node.js modules
+#-----------------------------------
+/node_modules
+.npm
+npm-debug.log*
+
+# IDE and editor configs
+#-----------------------------------
+.idea
+.vscode
+.log
+*.code-workspace
+
+# Cache files
+#-----------------------------------
+.eslintcache
+
+
+# Environment Variables
+#-----------------------------------
+.env
+
+
+# Misc
+#-----------------------------------
+.DS_Store
+.TSBuildInfo
+
