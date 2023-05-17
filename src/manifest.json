@@ -3,7 +3,7 @@
   "name": "chessGPT",
   "version": "1.0",
   "author": "Kailash",
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "storage"],
   "background": {
     "scripts": [
       "scripts/background.js",
