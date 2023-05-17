@@ -1,29 +1,36 @@
 import { Chess } from "chess.js";
 
-const API_KEY = "YOUR_API_KEY"
 const game = new Chess();
 
 // Function to send a message to the ChatGPT API
 async function sendMessage(message: string): Promise<string> {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${API_KEY}` // Replace with your actual API key
-  },
-  body: JSON.stringify({
-    model: "gpt-3.5-turbo",
-    messages: [{ role: "system", content: `you are a chess playing engine,
-      you will respond in start-end positions you will get the fen of the
-      game` }, { role: "user", content: message }],
+  try {
+    const API_KEY = await getDataLocal('apiKey');
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: `you are a chess playing engine,
+          you will respond in start-end positions you will get the fen of the game` },
+          { role: "user", content: message }
+      ],
       temperature: 0.7,
       max_tokens: 100
-  })
-  });
+    })
+    });
 
-  const data = await response.json();
-  const aiMove = data.choices[0].message.content.trim();
-  return aiMove;
+    const data = await response.json();
+    const aiMove = data.choices[0].message.content.trim();
+    return aiMove;
+  } catch (error) {
+    console.error(error);
+    throw error; // Rethrow the error to propagate it
+  }
 }
 
 
@@ -74,19 +81,45 @@ async function main(boardElement: HTMLElement, moveInput: HTMLInputElement) {
                                      notations just give your start-end nothing
                                      else - Player move: ${move}\nGame state:
                                        ${game.fen()}`);
-    console.log(`AI Move: ${aiMove}`);
+                                     console.log(`AI Move: ${aiMove}`);
 
-    const aiStartEndMove =  getMoveFromMessage(aiMove);
+                                     const aiStartEndMove =  getMoveFromMessage(aiMove);
 
-    if (typeof aiStartEndMove === "string"){
-      makeMoveAndUpdate(aiStartEndMove, boardElement);
-    } else if (!aiStartEndMove) {
-      console.log("ai message is not clear.", aiStartEndMove);
-    }
+                                     if (typeof aiStartEndMove === "string"){
+                                       makeMoveAndUpdate(aiStartEndMove, boardElement);
+                                     } else if (!aiStartEndMove) {
+                                       console.log("ai message is not clear.", aiStartEndMove);
+                                     }
 
   } else {
     alert("Invalid move format");
   }
+}
+
+function storeDataLocal(key: string, value: string) {
+  const data: { [key : string]: string} = {};
+  data[key] = value;
+
+  chrome.storage.local.set(data, () => {
+    if (chrome.runtime.lastError) {
+      console.error("Error storing data: ", chrome.runtime.lastError);
+    } else {
+      console.log("Data saved successfully!");
+    }
+  });
+}
+
+function getDataLocal<T>(key: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get([key], (result: {[key: string]: T}) => {
+      const data = result[key];
+      if (data !== undefined) {
+        resolve(data as T);
+      } else {
+        reject(new Error(`Data for key '${key}' not found.`));
+      }
+    });
+  });
 }
 
 // Add a listener for the DOMContentLoaded event so we can start manipulating the DOM
@@ -95,10 +128,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const moveButton = document.getElementById("moveButton") as HTMLButtonElement;
   const moveInput = document.getElementById("moveInput") as HTMLInputElement;
 
+  const apiInput = document.getElementById("apiKey") as HTMLInputElement;
+  const saveApiButton = document.getElementById("saveApiButton") as HTMLButtonElement;
+
   // Update the board display
   updateBoard(boardElement);
 
   // Handle move button clicks
   moveButton.addEventListener("click", () => { main(boardElement, moveInput); });
+  saveApiButton.addEventListener("click", (ele) => {storeDataLocal("apiKey",apiInput.value)});
 });
 
