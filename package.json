@@ -1,15 +1,21 @@
 {
   "name": "chessGPT",
   "version": "1.0.0",
-  "description": "",
+  "description": "A chomre extention that lets you play chess with chatGPT",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npx webpack"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "chess",
+    "chatGPT",
+    "chessGPT"
+  ],
+  "author": "Kailash",
   "license": "ISC",
   "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^11.0.0",
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.4",
     "webpack": "^5.82.1",
