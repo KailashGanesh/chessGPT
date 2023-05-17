@@ -15,7 +15,6 @@ body {
 }
 */
 
-
 /* Reset default styles */
 * {
   margin: 0;
@@ -34,37 +33,43 @@ body {
   padding: 20px;
 }
 
-/* Header styles */
-h1 {
+/* Title styles */
+.popup__title {
   font-size: 24px;
   color: #333;
   margin-bottom: 10px;
 }
 
-/* Subheader styles */
-small {
+/* Subtitle styles */
+.popup__subtitle {
   color: #666;
+  margin-bottom: 10px;
 }
 
 /* Board styles */
-pre#board {
+.popup__board {
   background-color: #fff;
   border: 1px solid #ccc;
   padding: 10px;
   margin-bottom: 20px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
 }
 
+
 /* Input styles */
-input#moveInput {
-  width: 200px;
+.popup__input {
+  width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 /* Button styles */
-button#moveButton {
+.popup__button {
+  width: 100%;
+  margin-bottom: 10px;
   background-color: #4285f4;
   color: #fff;
   padding: 10px 20px;
@@ -73,7 +78,7 @@ button#moveButton {
   cursor: pointer;
 }
 
-button#moveButton:hover {
+.popup__button:hover {
   background-color: #2d74da;
 }
 
