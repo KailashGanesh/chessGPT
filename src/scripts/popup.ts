@@ -5,23 +5,25 @@ const game = new Chess();
 // Function to send a message to the ChatGPT API
 async function sendMessage(message: string): Promise<string> {
   try {
-    const API_KEY = await getDataLocal('apiKey');
+    const API_KEY: string = await getDataLocal("apiKey");
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${API_KEY}`
-    },
-    body: JSON.stringify({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: `you are a chess playing engine,
-          you will respond in start-end positions you will get the fen of the game` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system", content: `you are a chess playing engine,
+            you will respond in start-end positions you will get the fen of the game`
+          },
           { role: "user", content: message }
-      ],
-      temperature: 0.7,
-      max_tokens: 100
-    })
+        ],
+        temperature: 0.7,
+        max_tokens: 100
+      })
     });
 
     const data = await response.json();
@@ -33,31 +35,30 @@ async function sendMessage(message: string): Promise<string> {
   }
 }
 
-
-function updateBoard(boardElement: HTMLElement) {
+function updateBoard(boardElement: HTMLElement): void {
   boardElement.textContent = game.ascii();
 }
 
-function getMoveFromMessage(message:string):string | boolean {
+function getMoveFromMessage(message: string): string | boolean {
   const regex = /\b\w\d-\w\d\b/;
   const match = message.match(regex);
-  console.log('regex match: ', match);
+  console.log("regex match: ", match);
 
-  if(match) return match[0];
+  if (match !== null && match !== undefined) return match[0];
 
   return false;
 }
 
-function makeMoveAndUpdate(startEndStr: string, boardElement:HTMLElement) {
+function makeMoveAndUpdate(startEndStr: string, boardElement: HTMLElement): void {
   let moveResult;
 
-  try{
+  try {
     moveResult = game.move(startEndStr);
-  } catch(e) {
+  } catch (e) {
     console.error(e);
   } finally {
-    console.log(moveResult)
-    if (!moveResult) {
+    console.log(moveResult);
+    if (moveResult === null || moveResult === undefined) {
       alert("Invalid AI move");
     } else {
       updateBoard(boardElement);
@@ -65,7 +66,7 @@ function makeMoveAndUpdate(startEndStr: string, boardElement:HTMLElement) {
   }
 }
 
-async function main(boardElement: HTMLElement, moveInput: HTMLInputElement) {
+async function main(boardElement: HTMLElement, moveInput: HTMLInputElement): Promise<void> {
   console.log("Move button clicked");
   const move = moveInput.value;
   const moveParts = move.split("-");
@@ -81,23 +82,22 @@ async function main(boardElement: HTMLElement, moveInput: HTMLInputElement) {
                                      notations just give your start-end nothing
                                      else - Player move: ${move}\nGame state:
                                        ${game.fen()}`);
-                                     console.log(`AI Move: ${aiMove}`);
+    console.log(`AI Move: ${aiMove}`);
 
-                                     const aiStartEndMove =  getMoveFromMessage(aiMove);
+    const aiStartEndMove = getMoveFromMessage(aiMove);
 
-                                     if (typeof aiStartEndMove === "string"){
-                                       makeMoveAndUpdate(aiStartEndMove, boardElement);
-                                     } else if (!aiStartEndMove) {
-                                       console.log("ai message is not clear.", aiStartEndMove);
-                                     }
-
+    if (typeof aiStartEndMove === "string") {
+      makeMoveAndUpdate(aiStartEndMove, boardElement);
+    } else if (!aiStartEndMove) {
+      console.log("ai message is not clear.", aiStartEndMove);
+    }
   } else {
     alert("Invalid move format");
   }
 }
 
-function storeDataLocal(key: string, value: string) {
-  const data: { [key : string]: string} = {};
+function storeDataLocal(key: string, value: string): void {
+  const data: Record<string, string> = {};
   data[key] = value;
 
   chrome.storage.local.set(data, () => {
@@ -109,9 +109,9 @@ function storeDataLocal(key: string, value: string) {
   });
 }
 
-function getDataLocal<T>(key: string): Promise<T> {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get([key], (result: {[key: string]: T}) => {
+async function getDataLocal<T>(key: string): Promise<T> {
+  return await new Promise((resolve, reject) => {
+    chrome.storage.local.get([key], (result: Record<string, T>) => {
       const data = result[key];
       if (data !== undefined) {
         resolve(data as T);
@@ -123,7 +123,7 @@ function getDataLocal<T>(key: string): Promise<T> {
 }
 
 // Add a listener for the DOMContentLoaded event so we can start manipulating the DOM
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", async (): Promise<void> => {
   const boardElement = document.getElementById("board") as HTMLElement;
   const moveButton = document.getElementById("moveButton") as HTMLButtonElement;
   const moveInput = document.getElementById("moveInput") as HTMLInputElement;
@@ -135,7 +135,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateBoard(boardElement);
 
   // Handle move button clicks
-  moveButton.addEventListener("click", () => { main(boardElement, moveInput); });
-  saveApiButton.addEventListener("click", (ele) => {storeDataLocal("apiKey",apiInput.value)});
-});
+  moveButton.addEventListener("click", () => {
+    void (async () => {
+      try {
+        await main(boardElement, moveInput);
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  });
 
+  saveApiButton.addEventListener("click", () => {
+    try {
+      storeDataLocal("apiKey", apiInput.value);
+    } catch (e) {
+      console.error(e);
+    }
+  });
+});
