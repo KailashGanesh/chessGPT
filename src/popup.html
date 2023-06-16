@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <link rel="stylesheet" href="./css/popup.css" />
+  </head>
   <body>
-    <pre id="board"></pre>
-    <input id="moveInput" type="text" placeholder="Enter a move">
-    <button id="moveButton">Make Move</button>
-    <script src="bundle.js"></script>
+    <h1 class="popup__title">ChessGPT</h1>
+    <small class="popup__subtitle">Don't Delay, Play Today!</small>
+    <pre class="popup__board" id="board"></pre>
+    <input id="moveInput" type="text" placeholder="Enter a Move Eg. e2-e4" class="popup__input" />
+    <button id="moveButton" class="popup__button">Make Move</button>
+    <input id="apiKey" type="password" placeholder="Enter OpenAi Api key" class="popup__input" />
+    <button id="saveApiButton" class="popup__button">Save Api</button>
+    <script src="scripts/popup.js"></script>
   </body>
 </html>
 
