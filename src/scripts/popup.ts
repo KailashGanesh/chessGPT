@@ -17,7 +17,8 @@ async function sendMessage(message: string): Promise<string> {
         messages: [
           {
             role: "system", content: `you are a chess playing engine,
-            you will respond in start-end positions you will get the fen of the game`
+            you will respond in start-end positions you will get the fen of the
+            game`
           },
           { role: "user", content: message }
         ],
